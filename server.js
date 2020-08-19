@@ -6,7 +6,7 @@ const players_list = require('./data/players.json')
 const app = express();
 app.use(express.json());
 
-// const port = process.env.PORT || 3000;
+ const port = process.env.PORT || 3000;
 
 let add_player_to_team = (all_ranks) => {
   let team1 = [];
@@ -98,6 +98,6 @@ app.get('/get_players_list', get_players_list);
 
 app.post("/show_teams", builed_teams);
 
-app.listen(3000, () => {
+app.listen(port, () => {
   console.log(`listening on http://localhost:${port}`);
 });
