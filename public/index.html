@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-image: url(/img/backround.jpg);
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+    }
+
+    h2 {
+      text-align: center;
+      color: black;
+    }
+
+    lable {
+      margin: 10px;
+      display: inline;
+
+    }
+
+    .image {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+
+    p {
+      font-family: 'Roboto', sans-serif;
+      color: black;
+      background-color: white;
+      margin-bottom: 17px;
+    }
+
+    .check {
+      opacity: 0.5;
+      background-color: #2db65b80 !important;
+      border-radius: 20px;
+    }
+
+    .player_div {
+      border-radius: 20px;
+    }
+
+    .btn-primary {
+      background-color: rgb(255, 255, 255, 0.75);
+      padding: 0
+    }
+
+    .btn-primary:hover {
+      background-color: rgb(45, 182, 91, 0.5);
+    }
+
+    .btn-primary p {
+      background-color: rgb(255, 255, 255, 1);
+      padding: 0
+    }
+
+    h4 {
+      text-align: center;
+    }
+
+    .panel_nav {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translate(-50%, -50%);
+      margin: 0 auto;
+      z-index: 10;
+      background-color: rgb(255, 255, 255);
+      border-radius: 20px;
+      max-height: 150px;
+    }
+
+
+    li img {
+      width: 100%;
+      float: left;
+      margin-left: 2px;
+      align-content: center;
+    }
+
+    .panel_nav ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .no_room {
+      background-color: rgb(255, 255, 255, 0.75);
+    }
+
+    .create_teams_disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .pointer {
+      cursor: pointer;
+    }
+  </style>
+  <title>build teams</title>
+</head>
+
+<body>
+  <h2>בחר שחקנים</h2>
+  <div id="container" class="container">
+    <div id="players_list" class="row row-list">
+      <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6" v-for="player in players" :key="player.name">
+        <lable class="btn btn-primary player_div" v-on:click="check(player)">
+          <img
+            src="http://content.nike.com/content/dam/one-nike/globalAssets/menu_header_images/OneNike_Global_Nav_Icons_Soccer.png"
+            class="img" />
+          <p>{{player.name}}</p>
+          <input type="checkbox" v-bind:value="player.rank" :id="player.name" class="hidden" style="display:block"
+            v-bind:checked=player_selected />
+        </lable>
+      </div>
+    </div>
+    <div id="groups_container">
+      <div class="panel-group col-lg-3 col-md-3 col-sm-6 col-xs-6" v-for="(group,index) in teams">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              קבוצה {{index+1}}
+            </h4>
+          </div>
+          <ul class="list-group">
+            <li class="list-group-item" v-for="player in group">{{player.name}}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div id="nav_panel" class="panel_nav">
+      <ul>
+        <li id="back_to_groups_btn" class="col-4 col-xs-4 create_teams_disabled" v-on:click="back_to_groups"><img src="/img/logo.png" /></li>
+        <li id="create_teams_btn" class="col-4 col-xs-4 create_teams_disabled" v-on:click="build_teams"><img src="/img/create-team_btn.png" />
+        </li>
+        <li id="back_to_players_btn" class="col-4 col-xs-4 create_teams_disabled" v-on:click="back_to_players"><img
+            src="/img/refresh-teams_btn.png" /></li>
+      </ul>
+    </div>
+  </div>
+  <script>
+    let playing_array = [];
+
+    let groups_container = document.getElementById('groups_container');
+
+    // hide grops divs
+    groups_container.style.display = 'none';
+
+    // get plyaers list and add to body
+    fetch('/get_players_list').then((content) => {
+      content.json().then(data => {
+        new Vue({
+          el: "#container",
+          data: {
+            players: data,
+            teams: [],
+            player_selected: false,
+            got_back_to_players: false,
+            groups_created: false,
+            counter: 0,
+          },
+          methods: {
+            check: function (player) {
+              let input = document.getElementById(JSON.parse(JSON.stringify(player)).name);
+
+              if (!input.checked) {
+
+                if (this.counter >= 20) {
+                  return alert("ניבחרו 20 שחקנים");
+                } else {
+                  input.checked = true;
+                  $(event.path[1]).addClass("check");
+                  set_playing(input);
+                  this.counter++;
+                  check_amout_of_selected_players(this.counter);
+
+                }
+              }
+              else {
+                $(event.path[1]).removeClass("check");
+                this.counter--;
+                input.checked = false;
+
+                remove_player_from_playing(input);
+                check_amout_of_selected_players(this.counter);
+              }
+            },
+            build_teams: function () {
+              let inputs = document.getElementById('players_list');
+              let groups_container = document.getElementById('groups_container');
+              let back_to_players_btn = document.getElementById("back_to_players_btn");
+              if (this.counter < 20 || this.got_back_to_players == true)
+                return false;
+              let players = playing_array;
+              fetch('/show_teams', {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(players)
+              }).then((res) => res.json().then((data) => {
+                this.teams = data;
+                inputs.style.display = 'none';
+                groups_container.style.display = 'block';
+                $(back_to_players_btn).removeClass('create_teams_disabled');
+                $(back_to_players_btn).addClass('pointer');
+                this.groups_created = true;
+              }))
+            },
+            back_to_players: function () {
+              let inputs = document.getElementById('players_list');
+              let back_to_groups = document.getElementById("back_to_groups_btn");
+              let back_to_players_btn = document.getElementById("back_to_players_btn");
+              if (this.counter >= 20 || this.groups_created == true) {
+                inputs.style.display = 'block';
+                groups_container.style.display = 'none';
+                $(event.path[1]).addClass('create_teams_disabled');
+                $(event.path[1]).removeClass('pointer');
+                $(back_to_groups).removeClass('create_teams_disabled');
+                $(back_to_groups).addClass('pointer');
+                $(create_teams_btn).addClass('create_teams_disabled');
+                $(create_teams_btn).removeClass('pointer');
+                this.got_back_to_players = true;
+              }
+            },
+            back_to_groups: function () {
+              let inputs = document.getElementById('players_list');
+              let groups_container = document.getElementById('groups_container');
+              let back_to_players_btn = document.getElementById("back_to_players_btn");
+              if (this.groups_created == true) {
+                inputs.style.display = 'none';
+                groups_container.style.display = 'block';
+                $(event.path[1]).addClass('create_teams_disabled');
+                $(event.path[1]).removeClass('pointer');
+                $(back_to_players_btn).removeClass('create_teams_disabled');
+                $(back_to_players_btn).addClass('pointer');
+                $(create_teams_btn).removeClass('create_teams_disabled');
+                $(create_teams_btn).addClass('pointer');
+                this.got_back_to_players = false;
+              }
+            }
+          }
+        })
+      })
+    })
+
+    function set_playing(player) {
+      playing_array.push({ name: player.id, rank: parseInt(player.value) });
+      console.log(playing_array);
+    }
+
+    function check_amout_of_selected_players(players) {
+      let create_teams_btn = document.getElementById("create_teams_btn");
+      if (players >= 20) {
+        $(create_teams_btn).removeClass('create_teams_disabled');
+        $(create_teams_btn).addClass('pointer');
+      }
+      else {
+        $(create_teams_btn).addClass('create_teams_disabled');
+        $(create_teams_btn).removeClass('pointer');
+      }
+    }
+
+    function remove_player_from_playing(player) {
+
+      let index = playing_array.findIndex(x => x.name === player.id && x.rank === parseInt(player.value));
+      playing_array.splice(index, 1);
+      console.log(playing_array);
+    }
+  </script>
+</body>
+
+</html>
