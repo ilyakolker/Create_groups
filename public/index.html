@@ -192,7 +192,7 @@
       <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
       <div class="overlay-content">
         <a href="#" id="add_player_to_players_list"  data-toggle="modal" data-target="#exampleModal" @click="remove_player_div = false">הוסף שחקן</a>
-        <a href="#" id="remove_player_to_players_list" @click="remove_player_div = !remove_player_div" data-toggle="modal" data-target="#exampleModal">מחק שחקן</a>
+        <a href="#" id="remove_player_to_players_list"  data-toggle="modal" data-target="#exampleModal" @click="remove_player_div = true">מחק שחקן</a>
       </div>
     </div>
     <div id="players_list" class="row row-list">
@@ -234,7 +234,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <h5 class="modal-title" id="exampleModalLabel">הוסף/הסר שחקן</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
