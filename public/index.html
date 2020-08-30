@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -46,7 +47,16 @@
       background-color: white;
       margin-bottom: 17px;
     }
-
+    #add_player{
+      position: fixed;
+      left: 50%;
+      right: 20px;
+      transform: translate(-50%, -50%);
+      margin: 0 auto;
+      z-index: 10;
+      border-radius: 20px;
+      max-height: 150px;
+    }
     .check {
       opacity: 0.5;
       background-color: #2db65b80 !important;
@@ -115,13 +125,76 @@
     .pointer {
       cursor: pointer;
     }
+
+    .overlay {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0, 0.9);
+  overflow-x: hidden;
+  transition: 0.5s;
+}
+
+.overlay-content {
+  position: relative;
+  top: 25%;
+  width: 100%;
+  text-align: center;
+  margin-top: 30px;
+}
+
+.overlay a {
+  padding: 8px;
+  text-decoration: none;
+  font-size: 36px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+.overlay a:hover, .overlay a:focus {
+  color: #f1f1f1;
+}
+
+.overlay .closebtn {
+  position: absolute;
+  top: 20px;
+  right: 45px;
+  font-size: 60px;
+}
+
+@media screen and (max-height: 450px) {
+  .overlay a {font-size: 20px}
+  .overlay .closebtn {
+  font-size: 40px;
+  top: 15px;
+  right: 35px;
+  }
+}
+
+#myNav{
+  z-index: 50;
+}
   </style>
   <title>build teams</title>
 </head>
 
 <body>
-  <h2>בחר שחקנים</h2>
+  <span style="font-size:30px;cursor:pointer; color: white;" onclick="openNav()">&#9776;</span>
+
   <div id="container" class="container">
+    <h2>בחר שחקנים</h2>
+    <div id="myNav" class="overlay">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+      <div class="overlay-content">
+        <a href="#" id="add_player_to_players_list"  data-toggle="modal" data-target="#exampleModal" @click="remove_player_div = false">הוסף שחקן</a>
+        <a href="#" id="remove_player_to_players_list" @click="remove_player_div = !remove_player_div" data-toggle="modal" data-target="#exampleModal">מחק שחקן</a>
+      </div>
+    </div>
     <div id="players_list" class="row row-list">
       <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6" v-for="player in players" :key="player.name">
         <lable class="btn btn-primary player_div" v-on:click="check(player)">
@@ -157,6 +230,42 @@
             src="/img/refresh-teams_btn.png" /></li>
       </ul>
     </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" v-if="!remove_player_div">
+            <label for="add_player_name_input">שם שחקן</label>
+            <input type="text" id="add_player_name_input" value="" v-model="add_player_name"/>
+            <br>
+            <label for="add_player_rank_input">דרוג שחקן</label>
+            <select id="add_player_rank_input" value="" v-model="add_player_rank">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+          <div class="modal-body" v-if="remove_player_div">
+            <br>
+            <label for="select_player_to_remove">בחר שחקן</label>
+            <select id="select_player_to_remove" value="" >
+              <option v-bind:value="player.name" v-for="player in players" :id="player.name" :value="player.rank">{{player.name}}</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-success" @click="add_player()" data-dismiss="modal" v-if=!remove_player_div>Save changes</button>
+            <button type="button" class="btn btn-success" @click="remove_player()" v-if=remove_player_div data-dismiss="modal">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <script>
     let playing_array = [];
@@ -178,6 +287,9 @@
             got_back_to_players: false,
             groups_created: false,
             counter: 0,
+            add_player_name: "",
+            add_player_rank: "",
+            remove_player_div: false
           },
           methods: {
             check: function (player) {
@@ -204,6 +316,33 @@
                 remove_player_from_playing(input);
                 check_amout_of_selected_players(this.counter);
               }
+            },
+            add_player: function(){
+              let new_player = {name: this.add_player_name, rank: this.add_player_rank};
+              fetch("/add_player_to_db",{
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(new_player)
+              }).then(()=>{
+                alert("הוספת שחקן חדש למערכת");
+                this.players.push(new_player);
+                console.log(new_player);
+              }).catch(err=>console.log(err));
+            },
+            remove_player: function () {
+
+              let removed_player = document.getElementById("select_player_to_remove");
+              player_name = removed_player.options[removed_player.selectedIndex].id;
+              let index = this.players.findIndex(x => x.name === removed_player.innerText && x.rank === parseInt(removed_player.value));
+                this.players.splice(index, 1);
+              fetch("/remove_player_from_db",{
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(this.players)
+              }).then(()=>{
+                alert(`הסרת את ${player_name} מרשימת השחקנים`);
+                console.log(player_name);
+              }).catch(err=>console.log(err));
             },
             build_teams: function () {
               let inputs = document.getElementById('players_list');
@@ -285,7 +424,22 @@
       playing_array.splice(index, 1);
       console.log(playing_array);
     }
-  </script>
+
+    function remove_player_from_players_list(player) {
+
+let index = players.findIndex(x => x.name === player.id && x.rank === parseInt(player.value));
+players.splice(index, 1);
+console.log(players);
+}
+
+    function openNav() {
+  document.getElementById("myNav").style.width = "100%";
+}
+
+function closeNav() {
+  document.getElementById("myNav").style.width = "0%";
+}
+ </script>
 </body>
 
 </html>

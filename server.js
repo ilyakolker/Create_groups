@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-
+const fs = require('fs');
 const players_list = require('./data/players.json')
 
 const app = express();
@@ -74,6 +74,17 @@ let order_by_rank = (players) => {
   return teams;
 };
 
+const add_player_to_players_list = (req, res)=>{
+  players_list.push(req.body);
+  fs.writeFileSync('data/players.json', JSON.stringify(players_list))
+  res.send("ok")
+}
+
+const remove_player_from_db = (req, res)=>{
+  fs.writeFileSync('data/players.json', JSON.stringify(req.body))
+  res.send("ok")
+}
+
 const get_players_list = (req, res)=>{
     res.send(players_list)
 }
@@ -97,6 +108,10 @@ app.use("/", express.static(path.join(__dirname, "public")));
 app.get('/get_players_list', get_players_list);
 
 app.post("/show_teams", builed_teams);
+
+app.post("/add_player_to_db", add_player_to_players_list);
+
+app.post("/remove_player_from_db", remove_player_from_db)
 
 app.listen(port, () => {
   console.log(`listening on http://localhost:${port}`);
