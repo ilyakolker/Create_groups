@@ -365,7 +365,15 @@
               selected_player = update_player.options[update_player.selectedIndex];
               
               let index = this.players.findIndex(x => x.name === selected_player.innerText && x.rank === parseInt(selected_player.value));
-              alert(index);
+              this.players[index] = {name:selected_player.innerText, rank: parseInt(this.update_player_rank)};
+              fetch("/update_player_details",{
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(this.players)
+              }).then(()=>{
+                alert(`עדכנת את פרטיו של ${selected_player.innerText} מ ${selected_player.value} ל ${this.update_player_rank}`);
+                console.log(selected_player);
+              }).catch(err=>console.log(err));
             },
             build_teams: function () {
               let inputs = document.getElementById('players_list');
