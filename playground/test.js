@@ -34,7 +34,7 @@ let rank5 = [];
 
 let all_ranks = [];
 
-
+console.log("test");
 let add_player_to_team = (all_ranks) => {
     counter = 0;
     all_ranks.forEach((el)=>{
