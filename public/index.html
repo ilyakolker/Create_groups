@@ -184,15 +184,15 @@
 </head>
 
 <body>
-  <span style="font-size:30px;cursor:pointer; color: white;" onclick="openNav()">&#9776;</span>
-
+  <span style="font-size:30px;cursor:pointer; color: white; position:fixed" onclick="openNav()">&#9776;</span>
   <div id="container" class="container">
     <h2>בחר שחקנים</h2>
     <div id="myNav" class="overlay">
       <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
       <div class="overlay-content">
-        <a href="#" id="add_player_to_players_list"  data-toggle="modal" data-target="#exampleModal" @click="remove_player_div = false">הוסף שחקן</a>
-        <a href="#" id="remove_player_to_players_list"  data-toggle="modal" data-target="#exampleModal" @click="remove_player_div = true">מחק שחקן</a>
+        <a href="#" id="add_player_to_players_list"  data-toggle="modal" data-target="#exampleModal" @click="remove_player_div = false; update_player_btn = false">הוסף שחקן</a>
+        <a href="#" id="remove_player_to_players_list"  data-toggle="modal" data-target="#exampleModal" @click="remove_player_div = true; update_player_btn = false">מחק שחקן</a>
+        <a href="#" id="update_player_details"  data-toggle="modal" data-target="#exampleModal" @click="remove_player_div = false;update_player_btn = true">עדכן פרטי שחקן</a>
       </div>
     </div>
     <div id="players_list" class="row row-list">
@@ -239,7 +239,7 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body" v-if="!remove_player_div">
+          <div class="modal-body" v-if="!remove_player_div && !update_player_btn">
             <label for="add_player_name_input">שם שחקן</label>
             <input type="text" id="add_player_name_input" value="" v-model="add_player_name"/>
             <br>
@@ -258,10 +258,24 @@
               <option v-bind:value="player.name" v-for="player in players" :id="player.name" :value="player.rank">{{player.name}}</option>
             </select>
           </div>
+          <div class="modal-body" v-if="update_player_btn">
+            <br>
+            <label for="select_player_to_update">בחר שחקן</label>
+            <select id="select_player_to_update" value="" >
+              <option v-bind:value="player.name" v-for="player in players" :value="player.rank">{{player.name}}</option>
+            </select>
+            <select id="update_player_rank_input" value="" v-model="update_player_rank">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-success" @click="add_player()" data-dismiss="modal" v-if=!remove_player_div>Save changes</button>
-            <button type="button" class="btn btn-success" @click="remove_player()" v-if=remove_player_div data-dismiss="modal">Save changes</button>
+            <button type="button" class="btn btn-success" @click="add_player()" data-dismiss="modal" v-if="!remove_player_div && !update_player_btn">Add player</button>
+            <button type="button" class="btn btn-success" @click="remove_player()" v-if=remove_player_div data-dismiss="modal">Remove player</button>
+            <button type="button" class="btn btn-success" @click="update_player()" v-if=update_player_btn data-dismiss="modal">Update player</button>
           </div>
         </div>
       </div>
@@ -289,7 +303,9 @@
             counter: 0,
             add_player_name: "",
             add_player_rank: "",
-            remove_player_div: false
+            update_player_rank: "",
+            remove_player_div: false,
+            update_player_btn: false,
           },
           methods: {
             check: function (player) {
@@ -318,7 +334,7 @@
               }
             },
             add_player: function(){
-              let new_player = {name: this.add_player_name, rank: this.add_player_rank};
+              let new_player = {name: this.add_player_name, rank: parseInt(this.add_player_rank)};
               fetch("/add_player_to_db",{
                 method: 'POST',
                 headers: { "Content-Type": "application/json" },
@@ -343,6 +359,13 @@
                 alert(`הסרת את ${player_name} מרשימת השחקנים`);
                 console.log(player_name);
               }).catch(err=>console.log(err));
+            },
+            update_player: function () {
+              let update_player = document.getElementById("select_player_to_update");
+              selected_player = update_player.options[update_player.selectedIndex];
+              
+              let index = this.players.findIndex(x => x.name === selected_player.innerText && x.rank === parseInt(selected_player.value));
+              alert(index);
             },
             build_teams: function () {
               let inputs = document.getElementById('players_list');

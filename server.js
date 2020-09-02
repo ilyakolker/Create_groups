@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
  const port = process.env.PORT || 3000;
-
+ 
 let add_player_to_team = (all_ranks) => {
   let team1 = [];
   let team2 = [];
@@ -35,9 +35,9 @@ let add_player_to_team = (all_ranks) => {
     });
   });
   console.log(
-    `team1: ${JSON.stringify(team1)}\n team2: ${JSON.stringify(
-      team2
-    )}\n team3: ${JSON.stringify(team3)}\n team4: ${JSON.stringify(team4)}`
+    `team1: ${JSON.stringify(team1)}\n team2: ${
+      JSON.stringify(team2)
+    }\n team3: ${JSON.stringify(team3)}\n team4: ${JSON.stringify(team4)}`
   );
   return [ team1, team2, team3, team4 ];
 };
@@ -80,6 +80,11 @@ const add_player_to_players_list = (req, res)=>{
   res.send("ok")
 }
 
+const update_player_details = (req, res)=>{
+  fs.writeFileSync('data/players.json', JSON.stringify(req.body))
+  res.send("ok")
+}
+
 const remove_player_from_db = (req, res)=>{
   fs.writeFileSync('data/players.json', JSON.stringify(req.body))
   res.send("ok")
@@ -105,11 +110,13 @@ function shuffle(array) {
 
 app.use("/", express.static(path.join(__dirname, "public")));
 
-app.get('/get_players_list', get_players_list);
+app.get("/get_players_list", get_players_list);
 
 app.post("/show_teams", builed_teams);
 
 app.post("/add_player_to_db", add_player_to_players_list);
+
+app.post("/update_player_details", update_player_details)
 
 app.post("/remove_player_from_db", remove_player_from_db)
 
