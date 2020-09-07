@@ -39,7 +39,7 @@ let add_player_to_team = (all_ranks) => {
       JSON.stringify(team2)
     }\n team3: ${JSON.stringify(team3)}\n team4: ${JSON.stringify(team4)}`
   );
-  return [ team1, team2, team3, team4 ];
+  return [ shuffle(team1), shuffle(team2), shuffle(team3), shuffle(team4) ];
 };
 
 let order_by_rank = (players) => {
