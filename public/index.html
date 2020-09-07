@@ -262,7 +262,7 @@
             <br>
             <label for="select_player_to_update">בחר שחקן</label>
             <select id="select_player_to_update" value="" >
-              <option v-bind:value="player.name" v-for="player in players" :value="player.rank">{{player.name}}</option>
+              <option v-bind:value="player.name" v-for="player in players" :value="player.rank">{{player.name}} - {{player.rank}}</option>
             </select>
             <select id="update_player_rank_input" value="" v-model="update_player_rank">
               <option value="1">1</option>
