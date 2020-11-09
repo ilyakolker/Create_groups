@@ -346,10 +346,9 @@
               }).catch(err=>console.log(err));
             },
             remove_player: function () {
-
               let removed_player = document.getElementById("select_player_to_remove");
               player_name = removed_player.options[removed_player.selectedIndex].id;
-              let index = this.players.findIndex(x => x.name === removed_player.innerText && x.rank === parseInt(removed_player.value));
+              let index = this.players.findIndex(x => x.name === player_name && x.rank === parseInt(removed_player.value));
                 this.players.splice(index, 1);
               fetch("/remove_player_from_db",{
                 method: 'POST',
