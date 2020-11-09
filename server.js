@@ -6,7 +6,7 @@ const players_list = require('./data/players.json')
 const app = express();
 app.use(express.json());
 
- const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
  
 let add_player_to_team = (all_ranks) => {
   let team1 = [];
