@@ -176,8 +176,11 @@
   }
 }
 
-#myNav{
+#exampleModal_screenshot , #myNav{
   z-index: 50;
+}
+.screenshot_img {
+  height: 100%; width: 100%; object-fit: contain
 }
   </style>
   <title>build teams</title>
@@ -208,7 +211,7 @@
       </div>
     </div>
     <div id="groups_container">
-      <div class="panel-group col-lg-3 col-md-3 col-sm-6 col-xs-6" v-for="(group,index) in teams">
+      <div class="panel-group col-lg-3 col-md-3 col-sm-6 col-xs-6" v-for="(group,index) in teams" ondblclick="screenshot()">
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
@@ -280,7 +283,11 @@
         </div>
       </div>
     </div>
+    <div class="overlay" id="exampleModal_screenshot" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <button type="button" class="btn btn-secondary" onclick="closeNav_screenshot()">close</button>
+    </div>
   </div>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script>
     let playing_array = [];
 
@@ -468,6 +475,23 @@ console.log(players);
 function closeNav() {
   document.getElementById("myNav").style.width = "0%";
 }
+function closeNav_screenshot() {
+  document.getElementById("exampleModal_screenshot").style.width = "0%";
+}
+
+async function screenshot() {
+  html2canvas(document.querySelector("body")).then(canvas => {
+    let screenshot = document.querySelector('#exampleModal_screenshot')
+    const datauri = canvas.toDataURL();
+    let img = document.createElement('img');
+    img.src = datauri;
+    img.setAttribute('class', 'screenshot_img');
+    screenshot.appendChild(img);
+    document.getElementById("exampleModal_screenshot").style.width = "100%";
+});
+}
+
+
  </script>
 </body>
 
